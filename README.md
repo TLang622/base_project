@@ -1,4 +1,6 @@
-# wondfo-ncov-ui
+# 前端基础项目
+
+用于快速开发
 
 ## Project setup
 ```
