@@ -51,7 +51,7 @@ export default {
       this.loading = true
       apiDealerReceive().then(response => {
         console.log(response)
-        this.list = response.data
+        // this.list = response.data
       }).finally(() => {
         this.loading = false
       })
