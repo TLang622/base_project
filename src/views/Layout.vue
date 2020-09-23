@@ -19,11 +19,11 @@
     <el-container>
       <el-aside width="200px">
         <el-menu :default-openeds="openeds" class="el-menu-vertical-demo" router>
-          <el-submenu index="1" route="/goods/index">
+          <el-submenu index="1" route="/dealer/data">
             <template slot="title">
               <span>商品管理</span>
             </template>
-            <el-menu-item index="1-1" route="/goods/index">
+            <el-menu-item index="1-1" route="/dealer/data">
               <span slot="title">商品管理</span>
             </el-menu-item>
           </el-submenu>
@@ -72,7 +72,7 @@
       </el-aside>
       <el-main>
         <Breadcrumb class="breadcrumb-container" />
-        <router-view />
+        <router-view class="view-container" />
       </el-main>
     </el-container>
   </el-container>
@@ -151,9 +151,12 @@ export default {
   margin: 0;
   padding: 0;
 }
-  .btn-logout {
-    color: #027DB4;
-    cursor: pointer;
-    margin-left: 20px;
-  }
+.btn-logout {
+  color: #027DB4;
+  cursor: pointer;
+  margin-left: 20px;
+}
+.view-container {
+  padding: 0 14px 20px;
+}
 </style>

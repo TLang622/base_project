@@ -19,11 +19,13 @@ const routes = [
     path: '/dealer',
     name: 'Dealer',
     component: Layout,
+    meta: { title: '经销商'},
     children: [
       {
         path: 'data',
         name: 'DealerData',
-        component: () => import('@/views/Home')
+        component: () => import('@/views/Home'),
+        meta: { title: '数据列表'},
       },
       {
         path: 'upload',

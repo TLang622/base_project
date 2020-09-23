@@ -41,7 +41,7 @@ export default {
 </script>
 <style scoped>
   .bread {
-    margin: 20px 14px 40px;
+    margin: 20px 14px;
   }
  h3{
    font-size: 26px;
