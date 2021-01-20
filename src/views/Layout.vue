@@ -159,4 +159,10 @@ export default {
 .view-container {
   padding: 0 14px 20px;
 }
+.title {
+  height: 100%;
+  a {
+    height: 100%;
+  }
+}
 </style>
