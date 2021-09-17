@@ -2,6 +2,52 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import { getToken, removeToken } from '@/utils/token'
 
+// 正在进行中的请求列表
+let reqList = []
+//白名单
+let whitelist = ['/phone/samples', '/ident/samples']
+
+/**
+ * 阻止重复请求
+ * @param {array} reqList - 请求缓存列表
+ * @param {string} url - 当前请求地址
+ * @param {function} cancel - 请求中断函数
+ * @param {string} errorMessage - 请求中断时需要显示的错误信息
+ */
+const stopRepeatRequest = function (reqList, url, cancel, errorMessage) {
+  let t = false
+  for (let i = 0; i < whitelist.length; i++) {
+    if (whitelist[i] === url) {
+      t = true
+    }
+  }
+  if(t) {
+    return
+  }
+  const errorMsg = errorMessage || ''
+  for (let i = 0; i < reqList.length; i++) {
+    if (reqList[i] === url) {
+      cancel(errorMsg)
+      return
+    }
+  }
+  reqList.push(url)
+}
+
+/**
+ * 允许某个请求可以继续进行
+ * @param {array} reqList 请求缓存列表
+ * @param {string} url 请求地址
+ */
+const allowRequest = function (reqList, url) {
+  for (let i = 0; i < reqList.length; i++) {
+    if (reqList[i] === url) {
+      reqList.splice(i, 1)
+      break
+    }
+  }
+}
+
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   withCredentials: false,
@@ -13,6 +59,13 @@ service.interceptors.request.use(
     if (getToken()) {
       config.headers['Authorization'] = getToken()
     }
+    let cancel
+    // 设置cancelToken对象
+    config.cancelToken = new axios.CancelToken(function(c) {
+      cancel = c
+    })
+    // 阻止重复请求。当上个请求未完成时，相同的请求不会进行
+    stopRepeatRequest(reqList, config.url, cancel, `${config.url} 请求被中断`)
     return config
   },
   error => {
@@ -22,14 +75,17 @@ service.interceptors.request.use(
 )
 
 service.interceptors.response.use(
-
   response => {
     // console.log(response)
-    const res = response.data
+    // // 增加延迟，相同请求不得在短时间内重复发送
+    setTimeout(() => {
+      allowRequest(reqList, response.config.url)
+    }, 1000)
 
-    if (response.status !==200 || res.errcode !== 0) {
+    const res = response.data
+    if (res.errcode !== 0) {
       const code = res.errcode
-      let msg = 'ajax error'
+      let msg = '接口出错'
       if (res.errmsg) {
         msg = res.errmsg
       }
@@ -63,13 +119,11 @@ service.interceptors.response.use(
   error => {
     console.log(error.toJSON())
     console.log(error.response)
+    allowRequest(reqList, error.config.url)
     let msg = error.message
     let code
     if (error.response) {
       code = error.response.status
-    }
-    if (error.response && error.response.data && error.response.data.errmsg) {
-      msg = error.response.data.errmsg
     }
     if (code === 401) {
       msg = '身份验证失败，请重新登录'
